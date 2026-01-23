@@ -33,40 +33,38 @@ export default function Admin() {
   }
 
   return (
-    <div>
-      <h2>Admin Panel</h2>
-      <p style={{ color: "#666" }}>Only ADMIN can access this page.</p>
+    <div className="grid">
+      <div>
+        <div className="eyebrow">Control center</div>
+        <h2 className="h1">Admin Panel</h2>
+        <p className="muted">Only ADMIN can access this page.</p>
+      </div>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <p className="alert">{error}</p>}
 
-      <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
+      <div className="grid">
         {users.map((u) => (
-          <div
-            key={u.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: 10,
-              padding: 12,
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 10,
-              alignItems: "center",
-            }}
-          >
+          <div key={u.id} className="card adminRow">
             <div>
-              <b>{u.name}</b> — {u.email} <br />
-              Role: <b>{u.role}</b>
+              <div className="row" style={{ justifyContent: "space-between" }}>
+                <div className="userTitle">{u.name}</div>
+                <span className={`badge ${u.role === "ADMIN" ? "badgeDone" : "badgeTodo"}`}>
+                  <span className="badgeDot" />
+                  {u.role}
+                </span>
+              </div>
+              <div className="muted">{u.email}</div>
             </div>
 
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => setRole(u.id, "USER")}>Make USER</button>
-              <button onClick={() => setRole(u.id, "ADMIN")}>Make ADMIN</button>
+            <div className="row">
+              <button className="btn btnGhost" onClick={() => setRole(u.id, "USER")}>Make USER</button>
+              <button className="btn btnPrimary" onClick={() => setRole(u.id, "ADMIN")}>Make ADMIN</button>
             </div>
           </div>
         ))}
       </div>
 
-      <button style={{ marginTop: 12 }} onClick={loadUsers}>
+      <button className="btn" onClick={loadUsers}>
         Refresh Users
       </button>
     </div>

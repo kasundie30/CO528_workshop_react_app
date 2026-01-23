@@ -29,71 +29,73 @@ export default function App() {
   }
 
   return (
-    <div style={{ fontFamily: "Arial", maxWidth: 900, margin: "0 auto", padding: 16 }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: "1px solid #ddd",
-          paddingBottom: 12,
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <strong>Simple App</strong>
-          {isLoggedIn() ? (
-            <>
-              <Link to="/tasks">Tasks</Link>
-              {user?.role === "ADMIN" && <Link to="/admin">Admin</Link>}
-            </>
-          ) : (
-            <>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-            </>
-          )}
-        </div>
+    <div className="appShell">
+      <header className="header">
+        <div className="headerInner">
+          <div className="brand">
+            <span className="brandIcon">✨</span>
+            <div>
+              <div className="brandTitle">Creative Tasks</div>
+              <div className="brandSubtitle">Plan, build, and shine</div>
+            </div>
+          </div>
 
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {isLoggedIn() && user ? (
-            <>
-              <span>
-                {user.name} — <b>{user.role}</b>
-              </span>
-              <button onClick={logout}>Logout</button>
-            </>
-          ) : (
-            <span style={{ color: "#666" }}>Not logged in</span>
-          )}
+          <nav className="nav">
+            {isLoggedIn() ? (
+              <>
+                <Link className="pill" to="/tasks">Tasks</Link>
+                {user?.role === "ADMIN" && <Link className="pill" to="/admin">Admin</Link>}
+              </>
+            ) : (
+              <>
+                <Link className="pill" to="/login">Login</Link>
+                <Link className="pill" to="/register">Register</Link>
+              </>
+            )}
+          </nav>
+
+          <div className="userMeta">
+            {isLoggedIn() && user ? (
+              <>
+                <span className="userBadge">
+                  {user.name} • <b>{user.role}</b>
+                </span>
+                <button className="btn btnGhost" onClick={logout}>Logout</button>
+              </>
+            ) : (
+              <span className="muted">Not logged in</span>
+            )}
+          </div>
         </div>
       </header>
 
-      <Routes>
-        <Route path="/" element={<Navigate to="/tasks" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      <main className="container">
+        <Routes>
+          <Route path="/" element={<Navigate to="/tasks" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/tasks"
-          element={
-            <ProtectedRoute>
-              <Tasks />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoute>
+                <Tasks />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <Admin />
-            </AdminRoute>
-          }
-        />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <Admin />
+              </AdminRoute>
+            }
+          />
 
-        <Route path="*" element={<div>404 Not Found</div>} />
-      </Routes>
+          <Route path="*" element={<div className="card">404 Not Found</div>} />
+        </Routes>
+      </main>
     </div>
   );
 }

@@ -26,28 +26,42 @@ export default function Login() {
     }
 
     return (
-        <div style={{ maxWidth: 420 }}>
-            <h2>Login</h2>
-            <div className="card" style={{ maxWidth: 460, margin: "0 auto" }}>
-                <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    <input
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email"
-                    />
-                    <input
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Password"
-                        type="password"
-                    />
+        <div className="authLayout">
+            <div>
+                <div className="eyebrow">Welcome back</div>
+                <h2 className="authTitle">Login</h2>
+                <p className="muted">Pick up where you left off and keep tasks moving.</p>
+            </div>
+            <div className="card authCard">
+                <form onSubmit={onSubmit} className="grid">
+                    <label className="field">
+                        <span>Email</span>
+                        <input
+                            className="input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="you@example.com"
+                        />
+                    </label>
+                    <label className="field">
+                        <span>Password</span>
+                        <input
+                            className="input"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            type="password"
+                        />
+                    </label>
 
-                    <button disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
+                    <button className="btn btnPrimary" disabled={loading}>
+                        {loading ? "Logging in..." : "Login"}
+                    </button>
                 </form>
             </div>
-            {error && <p style={{ color: "crimson" }}>{error}</p>}
+            {error && <p className="alert">{error}</p>}
 
-            <p style={{ marginTop: 10 }}>
+            <p className="muted">
                 No account? <Link to="/register">Register</Link>
             </p>
         </div>

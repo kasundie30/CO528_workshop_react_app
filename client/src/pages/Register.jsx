@@ -36,29 +36,45 @@ export default function Register() {
     }
 
     return (
-        <div style={{ maxWidth: 420 }}>
-            <h2>Register</h2>
+        <div className="authLayout">
+            <div>
+                <div className="eyebrow">New here?</div>
+                <h2 className="authTitle">Register</h2>
+                <p className="muted">Create an account to map ideas into action.</p>
+            </div>
 
-            <div className="card" style={{ maxWidth: 460, margin: "0 auto" }}>
+            <div className="card authCard">
                 {/* form */
-                    <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
-                        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-                        <input
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Password"
-                            type="password"
-                        />
+                    <form onSubmit={onSubmit} className="grid">
+                        <label className="field">
+                            <span>Name</span>
+                            <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+                        </label>
+                        <label className="field">
+                            <span>Email</span>
+                            <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                        </label>
+                        <label className="field">
+                            <span>Password</span>
+                            <input
+                                className="input"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Create a strong password"
+                                type="password"
+                            />
+                        </label>
 
-                        <button disabled={loading}>{loading ? "Creating..." : "Create Account"}</button>
+                        <button className="btn btnPrimary" disabled={loading}>
+                            {loading ? "Creating..." : "Create Account"}
+                        </button>
                     </form>
                 }
             </div>
 
-            {error && <p style={{ color: "crimson" }}>{error}</p>}
+            {error && <p className="alert">{error}</p>}
 
-            <p style={{ marginTop: 10 }}>
+            <p className="muted">
                 Have an account? <Link to="/login">Login</Link>
             </p>
         </div>
