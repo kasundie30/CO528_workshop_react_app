@@ -5,6 +5,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import Admin from "./pages/Admin.jsx";
+import Lab from "./pages/Lab.jsx";
 import { clearAuth, getUser, isLoggedIn } from "./auth.js";
 
 function ProtectedRoute({ children }) {
@@ -29,48 +30,44 @@ export default function App() {
   }
 
   return (
-    <div style={{ fontFamily: "Arial", maxWidth: 900, margin: "0 auto", padding: 16 }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: "1px solid #ddd",
-          paddingBottom: 12,
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <strong>Simple App</strong>
+    <div className="container">
+      <header className="header">
+        <div className="headerInner">
+          <div className="brand">
+            <strong>Workshop 2: Web Oriented Architecture</strong>
+            <span className="pill muted">Dept. of Computer Engineering</span>
+          </div>
           {isLoggedIn() ? (
-            <>
-              <Link to="/tasks">Tasks</Link>
-              {user?.role === "ADMIN" && <Link to="/admin">Admin</Link>}
-            </>
+            <nav className="nav">
+              <Link to="/lab" className="pill">Lab Sheet</Link>
+              <Link to="/tasks" className="pill">Tasks</Link>
+              {user?.role === "ADMIN" && <Link to="/admin" className="pill">Admin</Link>}
+            </nav>
           ) : (
-            <>
-              <Link to="/login">Login</Link>
-              <Link to="/register">Register</Link>
-            </>
+            <nav className="nav">
+              <Link to="/lab" className="pill">Lab Sheet</Link>
+              <Link to="/login" className="pill">Login</Link>
+              <Link to="/register" className="pill">Register</Link>
+            </nav>
           )}
-        </div>
-
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {isLoggedIn() && user ? (
-            <>
-              <span>
-                {user.name} — <b>{user.role}</b>
-              </span>
-              <button onClick={logout}>Logout</button>
-            </>
-          ) : (
-            <span style={{ color: "#666" }}>Not logged in</span>
-          )}
+          <div className="row">
+            {isLoggedIn() && user ? (
+              <>
+                <span className="muted">
+                  {user.name} — <b>{user.role}</b>
+                </span>
+                <button onClick={logout} className="btn">Logout</button>
+              </>
+            ) : (
+              <span className="muted">Not logged in</span>
+            )}
+          </div>
         </div>
       </header>
 
       <Routes>
-        <Route path="/" element={<Navigate to="/tasks" replace />} />
+        <Route path="/" element={<Navigate to="/lab" replace />} />
+        <Route path="/lab" element={<Lab />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 

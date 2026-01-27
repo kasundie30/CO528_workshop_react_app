@@ -166,3 +166,60 @@ a:hover{ text-decoration: underline; }
   z-index: 50;
   max-width: 92vw;
 }
+
+.sectionTitle{
+  font-size: 22px;
+  margin: 0 0 8px 0;
+}
+
+.sectionSubtitle{
+  font-size: 16px;
+  margin: 0 0 6px 0;
+}
+
+.eyebrow{
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  margin: 0 0 4px 0;
+  color: var(--muted);
+}
+
+.tag{
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-weight: 600;
+}
+
+.list{
+  margin: 8px 0 0 18px;
+  color: var(--text);
+}
+
+.highlight{
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: #f9fafb;
+}
+
+.taskBlock{
+  border-left: 4px solid #111827;
+  padding-left: 12px;
+}
+
+.checklist{
+  gap: 10px;
+}
+
+.checkItem{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
