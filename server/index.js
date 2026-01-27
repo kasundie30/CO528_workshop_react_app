@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { pool } from "./db.js";
 import { requireAuth, requireRole } from "./auth.js";
+import { initEventBus, publishEvent } from "./eventBus.js";
 
 const app = express();
 app.use(cors());
@@ -112,6 +113,14 @@ app.post("/api/tasks", requireAuth, async (req, res) => {
     "INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)",
     [title, description || null, req.user.id]
   );
+  console.log(`Task inserted id=${result.insertId}`);
+
+  publishEvent("tasks.created", {
+    eventName: "TaskCreated",
+    entityId: result.insertId,
+    timestamp: new Date().toISOString(),
+    meta: { userId: req.user.id, role: req.user.role, title },
+  });
 
   const [rows] = await pool.query("SELECT * FROM tasks WHERE id=?", [result.insertId]);
   res.status(201).json(rows[0]);
@@ -129,16 +138,28 @@ app.patch("/api/tasks/:id/status", requireAuth, async (req, res) => {
   const taskId = Number(req.params.id);
 
   // Ensure ownership unless admin
-  if (req.user.role !== "ADMIN") {
-    const [rows] = await pool.query("SELECT * FROM tasks WHERE id=? AND user_id=?", [
-      taskId,
-      req.user.id,
-    ]);
-    if (!rows[0]) return res.status(404).json({ message: "Not found" });
-  }
+  const [rows] = await pool.query(
+    "SELECT * FROM tasks WHERE id=? AND (? = 'ADMIN' OR user_id=?)",
+    [taskId, req.user.role, req.user.id]
+  );
+  if (!rows[0]) return res.status(404).json({ message: "Not found" });
+  const oldStatus = rows[0].status;
 
   await pool.query("UPDATE tasks SET status=? WHERE id=?", [parsed.data.status, taskId]);
   const [updated] = await pool.query("SELECT * FROM tasks WHERE id=?", [taskId]);
+
+  publishEvent("tasks.statusChanged", {
+    eventName: "TaskStatusChanged",
+    entityId: taskId,
+    timestamp: new Date().toISOString(),
+    meta: {
+      userId: req.user.id,
+      role: req.user.role,
+      oldStatus,
+      newStatus: parsed.data.status,
+    },
+  });
+
   res.json(updated[0]);
 });
 
@@ -155,9 +176,14 @@ app.patch("/api/admin/users/:id/role", requireAuth, requireRole("ADMIN"), async 
   res.json(rows[0]);
 });
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log("API running on port", process.env.PORT || 5000);
-});
+async function startServer() {
+  await initEventBus();
+  app.listen(process.env.PORT || 5000, () => {
+    console.log("API running on port", process.env.PORT || 5000);
+  });
+}
+
+startServer();
 
 
 app.get("/api/admin/users", requireAuth, requireRole("ADMIN"), async (req, res) => {
