@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { pool } from "./db.js";
 import { requireAuth, requireRole } from "./auth.js";
+import { publishHttpEvent } from "./publishHttpEvent.js";
 
 const app = express();
 app.use(cors());
@@ -114,7 +115,23 @@ app.post("/api/tasks", requireAuth, async (req, res) => {
   );
 
   const [rows] = await pool.query("SELECT * FROM tasks WHERE id=?", [result.insertId]);
-  res.status(201).json(rows[0]);
+  const task = rows[0];
+
+  const eventPayload = {
+    eventName: "TaskCreated",
+    entityId: task.id,
+    timestamp: new Date().toISOString(),
+    meta: {
+      userId: req.user.id,
+      role: req.user.role,
+      title: task.title,
+    },
+  };
+
+  publishHttpEvent(eventPayload);
+  console.log(`TaskCreated event dispatched for task ${task.id}`);
+
+  res.status(201).json(task);
 });
 
 // Status change (complex flow)
