@@ -101,20 +101,61 @@ app.get("/api/tasks", requireAuth, async (req, res) => {
 const taskCreateSchema = z.object({
   title: z.string().min(3),
   description: z.string().optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
 });
+
+import amqp from "amqplib";
+
+let channel;
+
+async function connectRabbitMQ() {
+  try {
+    const connection = await amqp.connect(process.env.RABBITMQ_URL || "amqp://localhost");
+    channel = await connection.createChannel();
+    await channel.assertExchange("task_events", "fanout", { durable: false });
+    console.log("Connected to RabbitMQ");
+  } catch (error) {
+    console.error("Failed to connect to RabbitMQ:", error);
+    // Exit the process or implement a retry mechanism if RabbitMQ connection is critical
+  }
+}
+
+connectRabbitMQ();
 
 app.post("/api/tasks", requireAuth, async (req, res) => {
   const parsed = taskCreateSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
 
-  const { title, description } = parsed.data;
+  const { title, description, priority } = parsed.data;
   const [result] = await pool.query(
-    "INSERT INTO tasks (title, description, user_id) VALUES (?, ?, ?)",
-    [title, description || null, req.user.id]
+    "INSERT INTO tasks (title, description, user_id, priority) VALUES (?, ?, ?, ?)",
+    [title, description || null, req.user.id, priority || 'MEDIUM']
   );
 
-  const [rows] = await pool.query("SELECT * FROM tasks WHERE id=?", [result.insertId]);
-  res.status(201).json(rows[0]);
+  const taskId = result.insertId;
+  const [rows] = await pool.query("SELECT * FROM tasks WHERE id=?", [taskId]);
+  const newTask = rows[0];
+
+  // Publish TaskCreated event to RabbitMQ
+  if (channel) {
+    const eventPayload = {
+      eventName: "TaskCreated",
+      taskId: newTask.id,
+      timestamp: new Date().toISOString(),
+      metadata: {
+        title: newTask.title,
+        description: newTask.description,
+        priority: newTask.priority,
+        userId: newTask.user_id,
+      },
+    };
+    channel.publish("task_events", "", Buffer.from(JSON.stringify(eventPayload)));
+    console.log(`TaskCreated event published for Task ID: ${newTask.id}`);
+  } else {
+    console.warn("RabbitMQ channel not available. TaskCreated event not published.");
+  }
+
+  res.status(201).json(newTask);
 });
 
 // Status change (complex flow)

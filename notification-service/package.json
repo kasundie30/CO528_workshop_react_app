@@ -1,0 +1,14 @@
+{
+  "name": "notification-service",
+  "version": "1.0.0",
+  "description": "A standalone service to consume TaskCreated events and send notifications.",
+  "main": "consumer.js",
+  "type": "module",
+  "scripts": {
+    "start": "node consumer.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "socket.io": "^4.8.3"
+  }
+}

@@ -1,11 +1,13 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import Admin from "./pages/Admin.jsx";
 import { clearAuth, getUser, isLoggedIn } from "./auth.js";
+import { io } from "socket.io-client";
+import NotificationPopup from "./components/NotificationPopup.jsx";
 
 function ProtectedRoute({ children }) {
   if (!isLoggedIn()) return <Navigate to="/login" replace />;
@@ -22,14 +24,47 @@ function AdminRoute({ children }) {
 export default function App() {
   const navigate = useNavigate();
   const user = getUser();
+  const [notification, setNotification] = useState(null);
 
   function logout() {
     clearAuth();
     navigate("/login");
   }
 
+  useEffect(() => {
+    const socket = io("http://localhost:3001");
+
+    socket.on("connect", () => {
+      console.log("Connected to notification service via WebSocket");
+    });
+
+    socket.on("taskCreated", (event) => {
+      setNotification(
+        `New Task Created: ${event.metadata.title} (ID: ${event.taskId})`
+      );
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from notification service via WebSocket");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const handleCloseNotification = () => {
+    setNotification(null);
+  };
+
   return (
     <div style={{ fontFamily: "Arial", maxWidth: 900, margin: "0 auto", padding: 16 }}>
+      {notification && (
+        <NotificationPopup
+          message={notification}
+          onClose={handleCloseNotification}
+        />
+      )}
       <header
         style={{
           display: "flex",
