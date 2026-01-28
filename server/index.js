@@ -150,12 +150,13 @@ app.post("/api/tasks", requireAuth, async (req, res) => {
       },
     };
     channel.publish("task_events", "", Buffer.from(JSON.stringify(eventPayload)));
-    console.log(`TaskCreated event published for Task ID: ${newTask.id}`);
+    console.log(`TaskCreated event published to RabbitMQ for Task ID: ${newTask.id}`);
   } else {
     console.warn("RabbitMQ channel not available. TaskCreated event not published.");
   }
-
+  console.log(`API sending 201 Created response for Task ID: ${newTask.id}`);
   res.status(201).json(newTask);
+
 });
 
 // Status change (complex flow)
